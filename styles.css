@@ -1,0 +1,29 @@
+:root { color-scheme: light; font-family: system-ui, sans-serif; color: #18323d; background: #eef5f6; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.site-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 2.5rem max(1rem, calc((100% - 1100px) / 2)); color: white; background: #176b87; }
+main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+.card { background: white; border: 1px solid #d6e4e7; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px #153b4512; }
+.section-heading, .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.eyebrow { margin: 0 0 .3rem; color: #d5f1f7; text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 700; }
+h1, h2, h3 { margin-top: 0; }
+h1 { margin-bottom: .3rem; }
+.status { padding: .4rem .7rem; border-radius: 999px; background: #ffffff2b; white-space: nowrap; }
+.status.offline { background: #8f351e; }
+.role-tabs { display: flex; gap: .5rem; margin: 1.5rem 0; border-bottom: 1px solid #d6e4e7; }
+button { border: 0; border-radius: 7px; padding: .65rem 1rem; color: white; background: #176b87; cursor: pointer; font: inherit; }
+button:hover { background: #0e5268; }
+button.secondary, .role-tab { color: #176b87; background: #e2f0f2; }
+.role-tab.active { color: white; background: #176b87; }
+.grid { display: grid; gap: 1rem; }
+.two-column { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.patient-form { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.5rem; }
+.stack { display: grid; gap: .8rem; }
+label { display: grid; gap: .3rem; font-weight: 600; }
+input, textarea, select { width: 100%; padding: .6rem; border: 1px solid #a9c3c8; border-radius: 6px; font: inherit; }
+textarea { min-height: 100px; resize: vertical; }
+.list { display: grid; gap: .6rem; }
+.list-item { padding: .8rem; border: 1px solid #d6e4e7; border-radius: 7px; background: #f8fbfb; }
+.list-item p { margin: .2rem 0; }
+.muted { color: #58737b; }
+@media (max-width: 600px) { .site-header { display: block; } .status { display: inline-block; margin-top: 1rem; } }

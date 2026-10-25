@@ -1,0 +1,9 @@
+{
+  "name": "CareLocal",
+  "short_name": "CareLocal",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#eef5f6",
+  "theme_color": "#176b87",
+  "icons": []
+}
