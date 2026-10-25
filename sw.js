@@ -1,4 +1,4 @@
-const CACHE_NAME = "carelocal-v1";
+const CACHE_NAME = "carelocal-v2";
 const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./db.js", "./manifest.json"];
 
 self.addEventListener("install", event => {

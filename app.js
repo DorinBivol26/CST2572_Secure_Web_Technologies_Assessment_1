@@ -51,9 +51,10 @@ async function renderPatient() {
   $("#patient-appointments").innerHTML = appointments.map(item => `<div class="list-item">${escapeHtml(item.scheduledAt)} with ${escapeHtml(item.doctorId)}</div>`).join("") || "<p class=\"muted\">No appointments saved.</p>";
   $("#appointment-form").addEventListener("submit", async event => {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
     await put("appointments", { ...data, id: crypto.randomUUID() });
-    event.currentTarget.reset();
+    form.reset();
     await renderPatient();
   });
 }
@@ -69,9 +70,10 @@ async function renderAdmin() {
   list.querySelectorAll("[data-delete]").forEach(button => button.addEventListener("click", async () => { await remove("patients", button.dataset.delete); await renderAdmin(); }));
   $("#patient-form").addEventListener("submit", async event => {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
     await put("patients", { ...data, id: data.id || crypto.randomUUID() });
-    event.currentTarget.reset();
+    form.reset();
     await renderAdmin();
   });
   $("#clear-patient").addEventListener("click", () => $("#patient-form").reset());
@@ -84,15 +86,17 @@ async function renderDoctor() {
   $("#doctor-notes").innerHTML = notes.map(item => `<div class="list-item"><strong>${escapeHtml(item.patientId)}</strong><p>${escapeHtml(item.text)}</p></div>`).join("") || "<p class=\"muted\">No notes saved.</p>";
   $("#note-form").addEventListener("submit", async event => {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
     await put("notes", { ...data, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
     await renderDoctor();
   });
   $("#prescription-form").addEventListener("submit", async event => {
     event.preventDefault();
-    const data = Object.fromEntries(new FormData(event.currentTarget));
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
     await put("prescriptions", { ...data, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
-    event.currentTarget.reset();
+    form.reset();
   });
 }
 
