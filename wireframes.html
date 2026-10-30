@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CareLocal wireframes</title>
+  <style>
+    body { margin: 0; padding: 2rem; color: #18323d; background: #eef5f6; font: 16px system-ui, sans-serif; }
+    main { max-width: 1100px; margin: auto; }
+    h1 { margin-top: 0; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+    .wireframe { padding: 1rem; border: 2px solid #176b87; border-radius: 10px; background: white; }
+    .bar, .box, .line { border: 1px dashed #58737b; padding: .6rem; margin: .5rem 0; }
+    .bar { color: white; background: #176b87; border-style: solid; }
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+    .line { height: .5rem; padding: 0; background: #e2f0f2; }
+    a { color: #176b87; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <p><a href="index.html">Back to CareLocal</a></p>
+    <h1>CareLocal wireframes</h1>
+    <p>Low-fidelity layouts used to plan the shared front page and role dashboards.</p>
+    <div class="grid">
+      <section class="wireframe"><h2>Front page</h2><div class="bar">CareLocal · Online/offline status</div><div class="box">Welcome message and short description</div><div class="box">Get started / Open workspace</div><div class="columns"><div class="box">Patient-led</div><div class="box">Offline-ready</div></div></section>
+      <section class="wireframe"><h2>Patient dashboard</h2><div class="bar">Patient · Logout</div><div class="box">Personal details</div><div class="columns"><div class="box">Book appointment</div><div class="box">Request prescription</div></div><div class="box">Appointments · Medicines · Medical notes</div></section>
+      <section class="wireframe"><h2>Doctor dashboard</h2><div class="bar">Doctor · Logout</div><div class="box">Select patient and doctor</div><div class="columns"><div class="box">Add clinical note</div><div class="box">Add treatment</div></div><div class="box">Patient history</div></section>
+      <section class="wireframe"><h2>Admin dashboard</h2><div class="bar">Admin · Logout</div><div class="box">Add or edit patient form</div><div class="box">Patient list</div><div class="columns"><div class="box">Edit</div><div class="box">Delete</div></div></section>
+    </div>
+  </main>
+</body>
+</html>

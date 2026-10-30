@@ -15,17 +15,34 @@
       <h1>CareLocal</h1>
       <p>Offline-ready patient records and appointment management.</p>
     </div>
-    <span id="connection-status" class="status">Checking connection...</span>
+    <div class="header-actions">
+      <a class="header-link" href="#workspace-card">Open workspace</a>
+      <span id="connection-status" class="status">Checking connection...</span>
+    </div>
   </header>
 
   <main>
+    <section class="hero card" aria-labelledby="welcome-heading">
+      <div>
+        <p class="eyebrow hero-eyebrow">Local healthcare workspace</p>
+        <h2 id="welcome-heading">Manage care securely, online or offline.</h2>
+        <p class="hero-copy">CareLocal gives patients, doctors and administrators one clear place to manage appointments, medical notes and prescriptions.</p>
+        <a class="button-link" href="#workspace-card">Get started</a>
+      </div>
+      <div class="feature-grid" aria-label="Application features">
+        <div class="feature-card"><strong>Patient-led</strong><span>Appointments, notes and prescriptions in one dashboard.</span></div>
+        <div class="feature-card"><strong>Offline-ready</strong><span>Local data remains available when the connection drops.</span></div>
+        <div class="feature-card"><strong>Role-based</strong><span>Separate workspaces for patients, doctors and admins.</span></div>
+      </div>
+    </section>
+
     <section id="setup-panel" class="card">
       <h2>Local data setup</h2>
       <p id="setup-message">Preparing the local database...</p>
       <button id="refresh-data" type="button">Import JSON data</button>
     </section>
 
-    <section class="card">
+    <section id="workspace-card" class="card">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Role demonstration</p>
