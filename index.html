@@ -15,17 +15,34 @@
       <h1>CareLocal</h1>
       <p>Offline-ready patient records and appointment management.</p>
     </div>
-    <span id="connection-status" class="status">Checking connection...</span>
+    <div class="header-actions">
+      <a class="header-link" href="#workspace-card">Open workspace</a>
+      <span id="connection-status" class="status">Checking connection...</span>
+    </div>
   </header>
 
   <main>
+    <section class="hero card" aria-labelledby="welcome-heading">
+      <div>
+        <p class="eyebrow hero-eyebrow">Local healthcare workspace</p>
+        <h2 id="welcome-heading">Manage care securely, online or offline.</h2>
+        <p class="hero-copy">CareLocal gives patients, doctors and administrators one clear place to manage appointments, medical notes and prescriptions.</p>
+        <a class="button-link" href="#workspace-card">Get started</a>
+      </div>
+      <div class="feature-grid" aria-label="Application features">
+        <div class="feature-card"><strong>Patient-led</strong><span>Appointments, notes and prescriptions in one dashboard.</span></div>
+        <div class="feature-card"><strong>Offline-ready</strong><span>Local data remains available when the connection drops.</span></div>
+        <div class="feature-card"><strong>Role-based</strong><span>Separate workspaces for patients, doctors and admins.</span></div>
+      </div>
+    </section>
+
     <section id="setup-panel" class="card">
       <h2>Local data setup</h2>
       <p id="setup-message">Preparing the local database...</p>
       <button id="refresh-data" type="button">Import JSON data</button>
     </section>
 
-    <section class="card">
+    <section id="workspace-card" class="card">
       <div class="section-heading">
         <div>
           <p class="eyebrow">Role demonstration</p>
@@ -43,23 +60,48 @@
   </main>
 
   <template id="patient-template">
+    <div class="patient-summary card">
+      <div>
+        <p class="eyebrow">Patient dashboard</p>
+        <h3 id="patient-welcome">My details</h3>
+      </div>
+      <div id="patient-details" class="details-grid"></div>
+    </div>
+
     <div class="grid two-column">
       <div>
         <h3>Book an appointment</h3>
         <form id="appointment-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Doctor ID <input name="doctorId" required value="d-001"></label>
+          <label>Doctor <select name="doctorId" id="patient-doctor" required></select></label>
           <label>Date and time <input name="scheduledAt" type="datetime-local" required></label>
-          <button type="submit">Save appointment</button>
+          <button type="submit">Book appointment</button>
         </form>
       </div>
       <div>
-        <h3>My medicines</h3>
-        <div id="patient-medicines" class="list"></div>
+        <h3>Request a prescription</h3>
+        <form id="prescription-request-form" class="stack">
+          <label>Medicine <select name="medicineId" id="request-medicine" required></select></label>
+          <label>Reason <textarea name="reason" required maxlength="300" placeholder="Explain why you need this medicine"></textarea></label>
+          <button type="submit">Request prescription</button>
+        </form>
       </div>
     </div>
-    <h3>Appointments</h3>
-    <div id="patient-appointments" class="list"></div>
+
+    <div class="grid two-column">
+      <section>
+        <h3>My appointments</h3>
+        <div id="patient-appointments" class="list"></div>
+      </section>
+      <section>
+        <h3>My medicines</h3>
+        <div id="patient-medicines" class="list"></div>
+      </section>
+    </div>
+
+    <section>
+      <h3>My medical notes</h3>
+      <div id="patient-notes" class="list"></div>
+    </section>
   </template>
 
   <template id="admin-template">

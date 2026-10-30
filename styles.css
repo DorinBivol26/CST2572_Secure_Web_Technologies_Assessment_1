@@ -2,8 +2,18 @@
 * { box-sizing: border-box; }
 body { margin: 0; }
 .site-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 2.5rem max(1rem, calc((100% - 1100px) / 2)); color: white; background: #176b87; }
+.header-actions { display: flex; align-items: center; gap: 1rem; }
+.header-link { color: white; font-weight: 700; }
 main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
 .card { background: white; border: 1px solid #d6e4e7; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px #153b4512; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 2rem; align-items: center; padding: 2rem; background: linear-gradient(135deg, #176b87, #0e5268); color: white; }
+.hero h2 { max-width: 620px; font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: .8rem; }
+.hero-copy { max-width: 620px; line-height: 1.6; }
+.hero-eyebrow { color: #bde8f0; }
+.button-link { display: inline-block; margin-top: .8rem; padding: .7rem 1rem; border-radius: 7px; color: #176b87; background: white; font-weight: 700; text-decoration: none; }
+.feature-grid { display: grid; gap: .8rem; }
+.feature-card { display: grid; gap: .3rem; padding: 1rem; border: 1px solid #ffffff44; border-radius: 9px; background: #ffffff18; }
+.feature-card span { font-size: .9rem; line-height: 1.4; color: #e4f7fa; }
 .section-heading, .form-actions { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .eyebrow { margin: 0 0 .3rem; color: #d5f1f7; text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 700; }
 h1, h2, h3 { margin-top: 0; }
@@ -26,7 +36,13 @@ textarea { min-height: 100px; resize: vertical; }
 .list-item { padding: .8rem; border: 1px solid #d6e4e7; border-radius: 7px; background: #f8fbfb; }
 .list-item p { margin: .2rem 0; }
 .muted { color: #58737b; }
-@media (max-width: 600px) { .site-header { display: block; } .status { display: inline-block; margin-top: 1rem; } }
+.patient-summary { margin-top: 1rem; }
+.details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+dt { color: #58737b; font-size: .85rem; }
+dd { margin: .2rem 0 0; font-weight: 600; }
+small { font-size: .8rem; }
+@media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .site-header { display: block; } .header-actions { display: block; } .header-link, .status { display: inline-block; margin-top: 1rem; } }
 
 /* Small additions for Member 4 */
 .message { color: #176b87; min-height: 1.5rem; font-weight: 600; }

@@ -1,6 +1,6 @@
 const DB_NAME = "carelocal";
-const DB_VERSION = 1;
-const STORES = ["patients", "doctors", "admins", "medicines", "appointments", "notes", "prescriptions"];
+const DB_VERSION = 2;
+const STORES = ["patients", "doctors", "admins", "medicines", "appointments", "notes", "prescriptions", "prescriptionRequests"];
 
 export function openDatabase() {
   return new Promise((resolve, reject) => {
