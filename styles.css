@@ -32,3 +32,9 @@ dt { color: #58737b; font-size: .85rem; }
 dd { margin: .2rem 0 0; font-weight: 600; }
 small { font-size: .8rem; }
 @media (max-width: 600px) { .site-header { display: block; } .status { display: inline-block; margin-top: 1rem; } }
+
+/* Small additions for Member 4 */
+.message { color: #176b87; min-height: 1.5rem; font-weight: 600; }
+.form-spacing { margin-bottom: 1.5rem; }
+#doctor-history, #doctor-notes, #doctor-prescriptions { margin-bottom: 1.5rem; }
+.list-item button { margin-top: .5rem; margin-right: .3rem; }

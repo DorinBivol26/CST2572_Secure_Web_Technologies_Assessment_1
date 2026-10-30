@@ -1,5 +1,5 @@
-const CACHE_NAME = "carelocal-v3";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./db.js", "./manifest.json"];
+const CACHE_NAME = "carelocal-v3-member4";
+const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./db.js", "./admin.js", "./doctor.js", "./manifest.json"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

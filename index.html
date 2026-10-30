@@ -98,31 +98,41 @@
       <label>NHS number <input name="nhsNumber" required pattern="[0-9]{10}"></label>
       <div class="form-actions"><button type="submit">Save patient</button><button id="clear-patient" type="button" class="secondary">Clear</button></div>
     </form>
+    <p id="admin-message" class="message" aria-live="polite"></p>
     <div id="admin-patients" class="list"></div>
   </template>
 
   <template id="doctor-template">
+    <h3>Doctor workspace</h3>
+    <p class="muted">Choose a patient and doctor before adding medical records.</p>
+    <div class="grid two-column form-spacing">
+      <label>Patient <select id="doctor-patient" required></select></label>
+      <label>Doctor <select id="doctor-select" required></select></label>
+    </div>
+    <p id="doctor-message" class="message" aria-live="polite"></p>
     <div class="grid two-column">
       <div>
-        <h3>Add a clinical note</h3>
+        <h3>Add clinical history / note</h3>
         <form id="note-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Note <textarea name="text" required maxlength="500"></textarea></label>
-          <button type="submit">Save note</button>
+          <label>Clinical note <textarea id="note-text" required maxlength="500"></textarea></label>
+          <button type="submit">Save medical note</button>
         </form>
       </div>
       <div>
-        <h3>Prescribe medicine</h3>
+        <h3>Add medicine / treatment</h3>
         <form id="prescription-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Medicine <select name="medicineId" id="medicine-options" required></select></label>
-          <label>Instructions <input name="instructions" required maxlength="200"></label>
+          <label>Medicine <select id="medicine-options" required></select></label>
+          <label>Treatment instructions <input id="medicine-instructions" required maxlength="200"></label>
           <button type="submit">Save prescription</button>
         </form>
       </div>
     </div>
-    <h3>Patient history and notes</h3>
+    <h3>Patient medical history</h3>
+    <div id="doctor-history" class="list"></div>
+    <h3>Medical notes</h3>
     <div id="doctor-notes" class="list"></div>
+    <h3>Prescriptions and treatments</h3>
+    <div id="doctor-prescriptions" class="list"></div>
   </template>
 
   <script type="module" src="app.js"></script>
