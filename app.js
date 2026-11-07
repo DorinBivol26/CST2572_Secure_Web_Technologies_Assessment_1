@@ -1,11 +1,14 @@
 import { getAll, importRecords, put, remove } from "./db.js";
 
+// These are the assessment data feeds used to initially fill the local database.
 const FEEDS = {
   doctors: "https://simulacra.uk/CST2572/doctor.json",
   patients: "https://simulacra.uk/CST2572/people.json",
   admins: "https://simulacra.uk/CST2572/admin.json",
   medicines: "https://simulacra.uk/CST2572/medicine.json"
 };
+
+// The fallback data keeps the demonstration usable when a remote feed is unavailable.
 const FALLBACK = {
   doctors: [{ id: "d-001", name: "Dr. Aisha Khan", email: "doctor@example.test" }],
   patients: [{ id: "p-001", name: "Alex Morgan", address: "1 Example Street", telephone: "07123456789", dateOfBirth: "1990-01-01", nhsNumber: "1234567890" }],
@@ -14,11 +17,15 @@ const FALLBACK = {
 };
 
 const $ = selector => document.querySelector(selector);
+
+// User-entered values are escaped before being placed into HTML.
+// This prevents a name or note from being treated as page markup.
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
 
 async function loadData() {
   const records = {};
   let fallbackCount = 0;
+  // Try each feed separately so one failed request does not stop the others.
   for (const [store, url] of Object.entries(FEEDS)) {
     try {
       const response = await fetch(url);
@@ -36,6 +43,7 @@ async function loadData() {
 }
 
 async function renderRole(role) {
+  // Replace the workspace with the template for the selected role.
   const template = document.getElementById(`${role}-template`);
   $("#workspace").replaceChildren(template.content.cloneNode(true));
   if (role === "patient") await renderPatient();
@@ -45,6 +53,7 @@ async function renderRole(role) {
 }
 
 async function renderPatient() {
+  // The patient view reads local medicines and appointments from IndexedDB.
   const medicines = await getAll("medicines");
   $("#patient-medicines").innerHTML = medicines.map(item => `<div class="list-item"><strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.instructions)}</p></div>`).join("");
   const appointments = await getAll("appointments");
@@ -53,6 +62,7 @@ async function renderPatient() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
+    // A UUID gives every appointment its own unique database id.
     await put("appointments", { ...data, id: crypto.randomUUID() });
     form.reset();
     await renderPatient();
@@ -72,6 +82,7 @@ async function renderAdmin() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
+    // Keep the existing id when editing; create one when adding a patient.
     await put("patients", { ...data, id: data.id || crypto.randomUUID() });
     form.reset();
     await renderAdmin();
@@ -88,6 +99,7 @@ async function renderDoctor() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
+    // Notes and prescriptions are linked to a patient and receive a creation time.
     await put("notes", { ...data, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
     await renderDoctor();
   });
@@ -112,8 +124,12 @@ document.querySelectorAll(".role-tab").forEach(button => button.addEventListener
   await renderRole(button.dataset.role);
 }));
 $("#refresh-data").addEventListener("click", loadData);
+
+// Update the connection label when the browser goes online or offline.
 window.addEventListener("online", () => $("#connection-status").classList.remove("offline"));
 window.addEventListener("offline", () => $("#connection-status").classList.add("offline"));
 $("#connection-status").textContent = navigator.onLine ? "Online" : "Offline";
+
+// Registering the service worker allows the app shell to be cached for offline use.
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(error => console.error("Service worker registration failed", error));
 loadData().catch(error => { $("#setup-message").textContent = `Database error: ${error.message}`; console.error(error); });
