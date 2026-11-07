@@ -1,105 +1,96 @@
 <!doctype html>
+<!-- Public landing page for the local surgery portal. -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#176b87">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css">
-  <title>CareLocal</title>
+  <link rel="stylesheet" href="styles.css?v=20261107-surgery-info">
+  <title>MediCare | Your local surgery online</title>
 </head>
-<body>
+<body class="public-page">
   <header class="site-header">
     <div>
-      <p class="eyebrow">CST2572 assessment</p>
-      <h1>CareLocal</h1>
-      <p>Offline-ready patient records and appointment management.</p>
+      <h1>MediCare</h1>
     </div>
-    <span id="connection-status" class="status">Checking connection...</span>
+    <nav class="header-actions" aria-label="Public navigation">
+      <a class="header-link" href="login.html">Sign in</a>
+      <a class="button-link compact" href="register.html">Create account</a>
+    </nav>
   </header>
-
   <main>
-    <section id="setup-panel" class="card">
-      <h2>Local data setup</h2>
-      <p id="setup-message">Preparing the local database...</p>
-      <button id="refresh-data" type="button">Import JSON data</button>
-    </section>
-
-    <section class="card">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Role demonstration</p>
-          <h2>Choose a workspace</h2>
+    <section class="hero card landing-hero">
+      <div>
+        <p class="eyebrow hero-eyebrow">MediCare local surgery</p>
+        <h2>Your local doctor’s surgery, easier to reach.</h2>
+        <p class="hero-copy">MediCare helps surgery patients book appointments, request prescriptions and keep up with their care from one secure online workspace.</p>
+        <div class="hero-actions">
+          <a class="button-link primary-action" href="register.html">Create your patient account</a>
+          <a class="text-link" href="login.html">Already registered? Sign in</a>
         </div>
-        <span id="record-count" class="muted"></span>
       </div>
-      <nav class="role-tabs" aria-label="Workspace roles">
-        <button class="role-tab active" data-role="patient">Patient</button>
-        <button class="role-tab" data-role="admin">Admin</button>
-        <button class="role-tab" data-role="doctor">Doctor</button>
-      </nav>
-      <div id="workspace"></div>
+      <div class="hero-preview" aria-label="Example of the MediCare patient portal">
+        <div class="preview-topline"><span class="preview-dot"></span><span>Patient online services</span><span class="preview-status">Available</span></div>
+        <div class="preview-welcome">How can we help?</div>
+        <div class="preview-grid">
+          <div class="preview-card"><strong>Appointments</strong><span>Book or review a visit</span><small>Online request</small></div>
+          <div class="preview-card"><strong>Prescriptions</strong><span>Request repeat medicine</span><small>Track progress</small></div>
+        </div>
+        <div class="preview-note"><span>✓</span> A simple way to contact your surgery.</div>
+      </div>
+    </section>
+    <section class="landing-section">
+      <div class="landing-section-heading">
+        <p class="eyebrow">Online surgery services</p>
+        <h2>What can we help you with today?</h2>
+      </div>
+      <div class="grid three-column service-cards">
+        <article class="card service-card"><span class="service-icon">01</span><h3>Book an appointment</h3><p class="muted">Choose a doctor and request a suitable appointment time through your patient account.</p><a href="login.html">Sign in to book <span aria-hidden="true">→</span></a></article>
+        <article class="card service-card"><span class="service-icon">02</span><h3>Request a prescription</h3><p class="muted">Send a prescription request to the practice and keep track of its progress online.</p><a href="login.html">Sign in to request <span aria-hidden="true">→</span></a></article>
+        <article class="card service-card"><span class="service-icon">03</span><h3>Review your care</h3><p class="muted">See your appointments, medicines, requests and notes in one organised workspace.</p><a href="register.html">Create an account <span aria-hidden="true">→</span></a></article>
+      </div>
+    </section>
+    <section class="info-section">
+      <div class="landing-section-heading">
+        <p class="eyebrow">Before you start</p>
+        <h2>Helpful information for patients.</h2>
+      </div>
+      <div class="info-grid">
+        <article class="info-item">
+          <span class="info-mark">✓</span>
+          <div><h3>Have your details ready</h3><p class="muted">You will need your personal details and contact information to create an account.</p></div>
+        </article>
+        <article class="info-item">
+          <span class="info-mark">i</span>
+          <div><h3>For routine requests</h3><p class="muted">Use the portal for non-urgent appointments, prescription requests and reviewing your records.</p></div>
+        </article>
+        <article class="info-item">
+          <span class="info-mark">!</span>
+          <div><h3>Need urgent help?</h3><p class="muted">Do not use this portal for emergencies. Call 999 in an emergency or NHS 111 for urgent advice.</p></div>
+        </article>
+      </div>
+    </section>
+    <section id="how-it-works" class="card workflow-card">
+      <div class="landing-section-heading">
+        <p class="eyebrow">How it works</p>
+        <h2>From request to follow-up.</h2>
+      </div>
+      <div class="workflow-steps">
+        <article><span class="step-number">01</span><h3>Register once</h3><p class="muted">Create your patient account with the details needed by the practice.</p></article>
+        <article><span class="step-number">02</span><h3>Send your request</h3><p class="muted">Book an appointment or request a prescription from your workspace.</p></article>
+        <article><span class="step-number">03</span><h3>Follow the progress</h3><p class="muted">Return anytime to review updates from your surgery team.</p></article>
+      </div>
+    </section>
+    <section class="privacy-strip">
+      <strong>Your information matters</strong>
+      <span>MediCare keeps records in this browser and limits each user to the tools needed for their surgery role.</span>
+    </section>
+    <section class="contact-prompt">
+      <strong>Need help using online services?</strong>
+      <span>Contact your surgery directly if you need urgent medical advice or help accessing your account.</span>
     </section>
   </main>
-
-  <template id="patient-template">
-    <div class="grid two-column">
-      <div>
-        <h3>Book an appointment</h3>
-        <form id="appointment-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Doctor ID <input name="doctorId" required value="d-001"></label>
-          <label>Date and time <input name="scheduledAt" type="datetime-local" required></label>
-          <button type="submit">Save appointment</button>
-        </form>
-      </div>
-      <div>
-        <h3>My medicines</h3>
-        <div id="patient-medicines" class="list"></div>
-      </div>
-    </div>
-    <h3>Appointments</h3>
-    <div id="patient-appointments" class="list"></div>
-  </template>
-
-  <template id="admin-template">
-    <h3>Manage patients</h3>
-    <form id="patient-form" class="grid patient-form">
-      <input type="hidden" name="id">
-      <label>Name <input name="name" required maxlength="80"></label>
-      <label>Address <input name="address" required maxlength="160"></label>
-      <label>Telephone <input name="telephone" required pattern="[0-9 +()\-]{7,20}"></label>
-      <label>Date of birth <input name="dateOfBirth" type="date" required></label>
-      <label>NHS number <input name="nhsNumber" required pattern="[0-9]{10}"></label>
-      <div class="form-actions"><button type="submit">Save patient</button><button id="clear-patient" type="button" class="secondary">Clear</button></div>
-    </form>
-    <div id="admin-patients" class="list"></div>
-  </template>
-
-  <template id="doctor-template">
-    <div class="grid two-column">
-      <div>
-        <h3>Add a clinical note</h3>
-        <form id="note-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Note <textarea name="text" required maxlength="500"></textarea></label>
-          <button type="submit">Save note</button>
-        </form>
-      </div>
-      <div>
-        <h3>Prescribe medicine</h3>
-        <form id="prescription-form" class="stack">
-          <label>Patient ID <input name="patientId" required value="p-001"></label>
-          <label>Medicine <select name="medicineId" id="medicine-options" required></select></label>
-          <label>Instructions <input name="instructions" required maxlength="200"></label>
-          <button type="submit">Save prescription</button>
-        </form>
-      </div>
-    </div>
-    <h3>Patient history and notes</h3>
-    <div id="doctor-notes" class="list"></div>
-  </template>
-
-  <script type="module" src="app.js"></script>
+  <footer class="public-footer">MediCare &middot; CST2572 Secure Web Technologies</footer>
 </body>
 </html>

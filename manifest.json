@@ -1,6 +1,6 @@
 {
-  "name": "CareLocal",
-  "short_name": "CareLocal",
+  "name": "MediCare",
+  "short_name": "MediCare",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#eef5f6",

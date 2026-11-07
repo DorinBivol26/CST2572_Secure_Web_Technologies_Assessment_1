@@ -1,7 +1,8 @@
 const DB_NAME = "carelocal";
-const DB_VERSION = 1;
-const STORES = ["patients", "doctors", "admins", "medicines", "appointments", "notes", "prescriptions"];
+const DB_VERSION = 3;
+const STORES = ["patients", "doctors", "admins", "users", "medicines", "appointments", "notes", "prescriptions", "prescriptionRequests", "auditLogs"];
 
+// Small IndexedDB helpers keep database access consistent across roles.
 export function openDatabase() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -51,6 +52,16 @@ export async function importRecords(records) {
       const store = transaction.objectStore(storeName);
       values.forEach(value => store.put(value));
     });
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export async function clearStores(storeNames) {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(storeNames, "readwrite");
+    storeNames.forEach(storeName => transaction.objectStore(storeName).clear());
     transaction.oncomplete = resolve;
     transaction.onerror = () => reject(transaction.error);
   });

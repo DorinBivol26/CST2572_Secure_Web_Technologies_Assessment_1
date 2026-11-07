@@ -1,13 +1,18 @@
-const CACHE_NAME = "carelocal-v2";
-const APP_SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./db.js", "./manifest.json"];
+const CACHE_NAME = "medicare-v40-ui-helpers";
+const APP_SHELL = ["./", "./index.html", "./login.html", "./register.html", "./dashboard.html", "./styles.css", "./app.js", "./seed-data.js", "./db.js", "./admin.js", "./doctor.js", "./auth.js", "./crypto.js", "./validate.js", "./ui.js", "./manifest.json"];
 
+// Replace old cached files whenever the app shell version changes.
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
   self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+    )).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener("fetch", event => {

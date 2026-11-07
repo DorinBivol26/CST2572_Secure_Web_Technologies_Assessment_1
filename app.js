@@ -1,119 +1,245 @@
-import { getAll, importRecords, put, remove } from "./db.js";
+import { clearStores, getAll, importRecords, put } from "./db.js";
+import { showAdmin } from "./admin.js?v=20261107-patient-form";
+import { showDoctor } from "./doctor.js?v=20261107-record-details";
+import { getSession, logout, requireRole, audit } from "./auth.js?v=20261107";
+import { decryptStoredFields, encryptStoredFields } from "./crypto.js?v=2";
+import { isValidDateOfBirth, isValidNhsNumber, sanitise } from "./validate.js";
+import { BUNDLED_DATA } from "./seed-data.js?v=20261107-split-medicines";
+import { escapeHtml, formatDateTime } from "./ui.js?v=20261107";
 
-const FEEDS = {
-  doctors: "https://simulacra.uk/CST2572/doctor.json",
-  patients: "https://simulacra.uk/CST2572/people.json",
-  admins: "https://simulacra.uk/CST2572/admin.json",
-  medicines: "https://simulacra.uk/CST2572/medicine.json"
-};
-const FALLBACK = {
-  doctors: [{ id: "d-001", name: "Dr. Aisha Khan", email: "doctor@example.test" }],
-  patients: [{ id: "p-001", name: "Alex Morgan", address: "1 Example Street", telephone: "07123456789", dateOfBirth: "1990-01-01", nhsNumber: "1234567890" }],
-  admins: [{ id: "a-001", name: "Practice administrator", email: "admin@example.test" }],
-  medicines: [{ id: "m-001", name: "Amoxicillin", instructions: "Take as directed by your doctor." }, { id: "m-002", name: "Paracetamol", instructions: "Take one tablet when required." }]
-};
-
+const BUNDLED_DATA_VERSION = "2026-11-07-split-medicines";
 const $ = selector => document.querySelector(selector);
-const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+const getCurrentPatientId = () => getSession()?.patientId || "p-001";
 
 async function loadData() {
   const records = {};
-  let fallbackCount = 0;
-  for (const [store, url] of Object.entries(FEEDS)) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json = await response.json();
-      records[store] = Array.isArray(json) ? json : Object.values(json);
-    } catch {
-      records[store] = FALLBACK[store];
-      fallbackCount += 1;
+  // Refresh only bundled reference data; keep local patient activity intact.
+  const needsBundledImport = localStorage.getItem("medicare.bundledDataVersion") !== BUNDLED_DATA_VERSION;
+  if (needsBundledImport) await clearStores(["doctors", "medicines"]);
+
+  for (const store of Object.keys(BUNDLED_DATA)) {
+    const existing = await getAll(store);
+    if (store === "patients") {
+      const existingIds = new Set(existing.map(item => item.id));
+      const missingPatients = BUNDLED_DATA.patients.filter(patient => !existingIds.has(patient.id));
+      if (missingPatients.length > 0) {
+        records[store] = await Promise.all(missingPatients.map(patient =>
+          encryptStoredFields(patient, ["name", "address", "telephone", "dateOfBirth", "nhsNumber"])
+        ));
+      }
+    } else if (existing.length === 0 || (needsBundledImport && ["doctors", "medicines"].includes(store))) {
+      records[store] = BUNDLED_DATA[store];
     }
   }
-  await importRecords(records);
-  $("#setup-message").textContent = fallbackCount ? `${fallbackCount} feed(s) unavailable; local seed data is active.` : "JSON data imported successfully.";
-  await renderRole("patient");
+
+  if (Object.keys(records).length > 0) {
+    await importRecords(records);
+  }
+  localStorage.setItem("medicare.bundledDataVersion", BUNDLED_DATA_VERSION);
+  await renderRole(getSession().role);
 }
 
 async function renderRole(role) {
+  requireRole(role);
+  // Each role gets its own template, so unrelated controls never appear.
   const template = document.getElementById(`${role}-template`);
   $("#workspace").replaceChildren(template.content.cloneNode(true));
-  if (role === "patient") await renderPatient();
-  if (role === "admin") await renderAdmin();
-  if (role === "doctor") await renderDoctor();
+  if (role === "patient") {
+    $("#workspace-card").classList.remove("card");
+    $("#workspace-card").classList.add("patient-dashboard");
+    $("#workspace-card > .section-heading").hidden = true;
+    setupPatientTabs();
+  } else {
+    $("#workspace-card").classList.remove("patient-dashboard");
+    $("#workspace-card").classList.add("card");
+    $("#workspace-card > .section-heading").hidden = false;
+  }
+  if (role === "patient") await showPatient();
+  if (role === "admin") await showAdmin();
+  if (role === "doctor") await showDoctor();
   await updateCount();
 }
 
-async function renderPatient() {
-  const medicines = await getAll("medicines");
-  $("#patient-medicines").innerHTML = medicines.map(item => `<div class="list-item"><strong>${escapeHtml(item.name)}</strong><p>${escapeHtml(item.instructions)}</p></div>`).join("");
-  const appointments = await getAll("appointments");
-  $("#patient-appointments").innerHTML = appointments.map(item => `<div class="list-item">${escapeHtml(item.scheduledAt)} with ${escapeHtml(item.doctorId)}</div>`).join("") || "<p class=\"muted\">No appointments saved.</p>";
-  $("#appointment-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
-    await put("appointments", { ...data, id: crypto.randomUUID() });
-    form.reset();
-    await renderPatient();
+function setupPatientTabs() {
+  document.querySelectorAll(".patient-tabs .admin-tab").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".patient-tabs .admin-tab").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
+      document.querySelectorAll(".patient-panel").forEach(panel => {
+        panel.hidden = panel.dataset.patientPanel !== button.dataset.patientSection;
+      });
+    });
   });
 }
 
-async function renderAdmin() {
-  const list = $("#admin-patients");
-  const patients = await getAll("patients");
-  list.innerHTML = patients.map(patient => `<div class="list-item"><strong>${escapeHtml(patient.name)}</strong><p>${escapeHtml(patient.address)} · NHS ${escapeHtml(patient.nhsNumber)}</p><button data-edit="${escapeHtml(patient.id)}">Edit</button> <button class="secondary" data-delete="${escapeHtml(patient.id)}">Delete</button></div>`).join("");
-  list.querySelectorAll("[data-edit]").forEach(button => button.addEventListener("click", () => {
-    const patient = patients.find(item => item.id === button.dataset.edit);
-    Object.entries(patient).forEach(([key, value]) => { const input = $(`#patient-form [name="${key}"]`); if (input) input.value = value; });
-  }));
-  list.querySelectorAll("[data-delete]").forEach(button => button.addEventListener("click", async () => { await remove("patients", button.dataset.delete); await renderAdmin(); }));
-  $("#patient-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
-    await put("patients", { ...data, id: data.id || crypto.randomUUID() });
-    form.reset();
-    await renderAdmin();
-  });
-  $("#clear-patient").addEventListener("click", () => $("#patient-form").reset());
-}
+async function showPatient() {
+  const patientId = getCurrentPatientId();
+  const [patients, doctors, medicines, appointments, notes, prescriptions, prescriptionRequests] = await Promise.all([
+    getAll("patients"),
+    getAll("doctors"),
+    getAll("medicines"),
+    getAll("appointments"),
+    getAll("notes"),
+    getAll("prescriptions"),
+    getAll("prescriptionRequests")
+  ]);
+  const patientRecord = patients.find(item => item.id === patientId);
 
-async function renderDoctor() {
-  const medicines = await getAll("medicines");
-  $("#medicine-options").innerHTML = medicines.map(item => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join("");
-  const notes = await getAll("notes");
-  $("#doctor-notes").innerHTML = notes.map(item => `<div class="list-item"><strong>${escapeHtml(item.patientId)}</strong><p>${escapeHtml(item.text)}</p></div>`).join("") || "<p class=\"muted\">No notes saved.</p>";
-  $("#note-form").addEventListener("submit", async event => {
+  if (!patientRecord) {
+    $("#patient-welcome").textContent = "Patient profile not found";
+    $("#patient-details").innerHTML = "<p class=\"muted\">No patient is signed in.</p>";
+    return;
+  }
+  const patient = await decryptStoredFields(patientRecord, ["name", "address", "telephone", "dateOfBirth", "nhsNumber"]);
+  await audit("read", "patients", patientId);
+
+  function setupCombobox(inputId, listId, hiddenInput, records, getLabel) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(listId);
+    const hidden = document.querySelector(hiddenInput);
+    list.replaceChildren(...records.map(record => {
+      const option = document.createElement("option");
+      option.value = getLabel(record);
+      return option;
+    }));
+    // The visible name is friendly; the hidden value is the database ID.
+    input.oninput = () => {
+      const selected = records.find(record => getLabel(record) === input.value.trim());
+      hidden.value = selected?.id || "";
+    };
+  }
+
+  $("#patient-welcome").textContent = `Personal information for ${escapeHtml(patient.name)}`;
+  $("#patient-details").innerHTML = [
+    ["Name", patient.name],
+    ["Address", patient.address],
+    ["Telephone", patient.telephone],
+    ["Date of birth", patient.dateOfBirth],
+    ["NHS number", patient.nhsNumber]
+  ].map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("");
+
+  setupCombobox("patient-doctor", "patient-doctor-options", "#appointment-form input[name='doctorId']", doctors, item => item.name);
+  setupCombobox("request-medicine", "request-medicine-options", "#prescription-request-form input[name='medicineId']", medicines, item => item.name);
+
+  const patientAppointments = appointments.filter(item => item.patientId === patientId);
+  // Summaries stay short while details remain available on demand.
+  $("#patient-appointments").innerHTML = patientAppointments.map(item => {
+    const doctor = doctors.find(doctorItem => doctorItem.id === item.doctorId);
+    return `<details class="list-item record-details"><summary>Appointment with ${escapeHtml(doctor?.name || item.doctorId)}</summary><p><strong>Date and time:</strong> ${escapeHtml(formatDateTime(item.scheduledAt))}</p><small class="muted">Status: ${escapeHtml(item.status || "requested")}</small></details>`;
+  }).join("") || "<p class=\"muted\">No appointments saved.</p>";
+
+  const patientPrescriptions = prescriptions.filter(item => item.patientId === patientId);
+  $("#patient-medicines").innerHTML = patientPrescriptions.map(item => {
+    const medicine = medicines.find(medicineItem => medicineItem.id === item.medicineId);
+    const doctor = doctors.find(doctorItem => doctorItem.id === item.doctorId);
+    return `<details class="list-item record-details"><summary>${escapeHtml(medicine?.name || item.medicineId)}</summary><p><strong>Instructions:</strong> ${escapeHtml(item.instructions)}</p><small class="muted">By ${escapeHtml(doctor?.name || item.doctorId)} · ${escapeHtml(formatDateTime(item.createdAt))}</small></details>`;
+  }).join("") || "<p class=\"muted\">No prescriptions saved.</p>";
+
+  $("#patient-appointment-requests").innerHTML = patientAppointments.map(item => {
+    const doctor = doctors.find(doctorItem => doctorItem.id === item.doctorId);
+    return `<details class="list-item record-details"><summary>Appointment with ${escapeHtml(doctor?.name || item.doctorId)}</summary><p><strong>Date and time:</strong> ${escapeHtml(formatDateTime(item.scheduledAt))}</p><small class="muted">Status: ${escapeHtml(item.status || "requested")}</small></details>`;
+  }).join("") || "<p class=\"muted\">No appointment requests yet.</p>";
+
+  const patientPrescriptionRequests = prescriptionRequests.filter(item => item.patientId === patientId);
+  $("#patient-prescription-requests").innerHTML = patientPrescriptionRequests.map(item => {
+    const medicine = medicines.find(medicineItem => medicineItem.id === item.medicineId);
+    return `<details class="list-item record-details"><summary>Prescription request: ${escapeHtml(medicine?.name || item.medicineId)}</summary><p><strong>Reason:</strong> ${escapeHtml(item.reason)}</p><small class="muted">Status: ${escapeHtml(item.status || "requested")}</small></details>`;
+  }).join("") || "<p class=\"muted\">No prescription requests yet.</p>";
+
+  const patientNotes = notes.filter(item => item.patientId === patientId);
+  $("#patient-notes").innerHTML = patientNotes.map(item =>
+    `<details class="list-item record-details"><summary>Clinical note from ${escapeHtml(doctors.find(doctor => doctor.id === item.doctorId)?.name || item.doctorId)}</summary><p>${escapeHtml(item.text)}</p><small class="muted">Added ${escapeHtml(formatDateTime(item.createdAt))}</small></details>`
+  ).join("") || "<p class=\"muted\">No medical notes saved.</p>";
+
+  $("#appointment-form").onsubmit = async event => {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
-    await put("notes", { ...data, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
-    await renderDoctor();
-  });
-  $("#prescription-form").addEventListener("submit", async event => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = Object.fromEntries(new FormData(form));
-    await put("prescriptions", { ...data, id: crypto.randomUUID(), createdAt: new Date().toISOString() });
+    if (!data.doctorId) {
+      $("#patient-request-message").textContent = "Choose a doctor from the suggestions.";
+      return;
+    }
+    if (new Date(data.scheduledAt) <= new Date()) {
+      alert("Please choose a future appointment time.");
+      return;
+    }
+
+    const appointment = { doctorId: sanitise(data.doctorId, 50), scheduledAt: data.scheduledAt, patientId, status: "requested", id: crypto.randomUUID() };
+    await put("appointments", appointment);
+    await audit("create", "appointments", appointment.id);
     form.reset();
-  });
+    await showPatient();
+    $("#patient-request-message").textContent = "Appointment request sent successfully. You can track it in My requests.";
+  };
+
+  // Assign handlers instead of adding listeners so refreshes cannot duplicate submissions.
+  $("#prescription-request-form").onsubmit = async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    if (!data.medicineId) {
+      $("#patient-request-message").textContent = "Choose a medicine from the suggestions.";
+      return;
+    }
+    const reason = sanitise(data.reason, 300);
+    if (reason.length < 5) {
+      alert("Please provide a little more detail about the request.");
+      return;
+    }
+    const request = {
+      ...data,
+      reason,
+      patientId,
+      status: "requested",
+      createdAt: new Date().toISOString(),
+      id: crypto.randomUUID()
+    };
+    await put("prescriptionRequests", request);
+    await audit("create", "prescriptionRequests", request.id);
+    form.reset();
+    $("#patient-request-message").textContent = "Prescription request sent successfully. You can track it in My requests.";
+  };
 }
 
 async function updateCount() {
-  const stores = ["patients", "doctors", "medicines", "appointments", "notes", "prescriptions"];
+  const stores = ["patients", "doctors", "medicines", "appointments", "notes", "prescriptions", "prescriptionRequests"];
   const counts = await Promise.all(stores.map(store => getAll(store).then(items => items.length)));
   $("#record-count").textContent = `${counts.reduce((sum, count) => sum + count, 0)} local records`;
 }
 
-document.querySelectorAll(".role-tab").forEach(button => button.addEventListener("click", async () => {
-  document.querySelectorAll(".role-tab").forEach(item => item.classList.remove("active"));
-  button.classList.add("active");
-  await renderRole(button.dataset.role);
-}));
-$("#refresh-data").addEventListener("click", loadData);
-window.addEventListener("online", () => $("#connection-status").classList.remove("offline"));
-window.addEventListener("offline", () => $("#connection-status").classList.add("offline"));
-$("#connection-status").textContent = navigator.onLine ? "Online" : "Offline";
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(error => console.error("Service worker registration failed", error));
-loadData().catch(error => { $("#setup-message").textContent = `Database error: ${error.message}`; console.error(error); });
+function updateConnection() {
+  const status = $("#connection-status");
+  status.textContent = navigator.onLine ? "Online" : "Offline";
+  status.classList.toggle("offline", !navigator.onLine);
+}
+
+window.addEventListener("online", updateConnection);
+window.addEventListener("offline", updateConnection);
+updateConnection();
+
+if ("serviceWorker" in navigator) {
+  // The versioned URL makes browsers check for a new offline cache.
+  navigator.serviceWorker.register("./sw.js?v=20261107-v40").catch(error => console.error(error));
+}
+
+const session = getSession();
+if (!session) {
+  window.location.href = "login.html";
+} else {
+  document.querySelector(".site-header").hidden = false;
+  document.querySelector("main").hidden = false;
+  document.getElementById("signed-in-as").textContent = session.role === "admin"
+    ? `${session.name} (admin)`
+    : session.name;
+  document.getElementById("dashboard-welcome").textContent = `Welcome, ${session.name || "there"}`;
+  document.getElementById("logout-button").onclick = () => {
+    logout();
+    window.location.href = "index.html";
+  };
+  loadData().catch(error => {
+    $("#workspace").textContent = `Database error: ${error.message}`;
+    console.error(error);
+  });
+}
+window.addEventListener("auth-expired", () => window.location.reload());

@@ -1,0 +1,210 @@
+<!doctype html>
+<!-- Role templates are rendered into the workspace after sign-in. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#176b87">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css?v=20261107-patient-sections">
+  <title>MediCare</title>
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">CST2572 assessment</p>
+      <h1>MediCare</h1>
+      <p>Offline-ready patient records and appointment management.</p>
+    </div>
+    <div class="header-actions">
+      <a class="header-link" href="index.html">Home</a>
+      <span id="signed-in-as" class="status"></span>
+      <button id="logout-button" type="button" class="secondary">Log out</button>
+      <span id="connection-status" class="status">Checking connection...</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="workspace-card" class="card">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Your MediCare workspace</p>
+          <h2 id="dashboard-welcome">Welcome</h2>
+        </div>
+        <span id="record-count" class="muted"></span>
+      </div>
+      <div id="workspace"></div>
+    </section>
+  </main>
+
+  <template id="patient-template">
+    <nav class="admin-tabs patient-tabs" aria-label="Patient sections">
+      <button type="button" class="admin-tab active" data-patient-section="personal">Personal information</button>
+      <button type="button" class="admin-tab" data-patient-section="care">Request care</button>
+      <button type="button" class="admin-tab" data-patient-section="appointments">My appointments</button>
+      <button type="button" class="admin-tab" data-patient-section="medicines">My medicines</button>
+      <button type="button" class="admin-tab" data-patient-section="requests">My requests</button>
+      <button type="button" class="admin-tab" data-patient-section="notes">Medical notes</button>
+    </nav>
+
+    <section class="patient-panel card" data-patient-panel="personal">
+      <h3 id="patient-welcome">Personal information</h3>
+      <div id="patient-details" class="details-grid"></div>
+    </section>
+
+    <section class="patient-panel card" data-patient-panel="care" hidden>
+      <h3>Request care</h3>
+      <p id="patient-request-message" class="message" aria-live="polite"></p>
+      <div class="grid two-column">
+        <div>
+        <h4>Book an appointment</h4>
+        <form id="appointment-form" class="stack">
+          <label>Doctor <input id="patient-doctor" name="doctorName" type="search" list="patient-doctor-options" placeholder="Search and choose a doctor" autocomplete="off" required><datalist id="patient-doctor-options"></datalist><input name="doctorId" type="hidden"></label>
+          <label>Date and time <input name="scheduledAt" type="datetime-local" required></label>
+          <button type="submit">Book appointment</button>
+        </form>
+        </div>
+        <div>
+        <h4>Request a prescription</h4>
+        <form id="prescription-request-form" class="stack">
+          <label>Medicine <input id="request-medicine" name="medicineName" type="search" list="request-medicine-options" placeholder="Search and choose a medicine" autocomplete="off" required><datalist id="request-medicine-options"></datalist><input name="medicineId" type="hidden"></label>
+          <label>Reason <textarea name="reason" required maxlength="300" placeholder="Explain why you need this medicine"></textarea></label>
+          <button type="submit">Request prescription</button>
+        </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="patient-panel card" data-patient-panel="appointments" hidden>
+      <h3>My appointments</h3>
+      <div id="patient-appointments" class="list"></div>
+    </section>
+
+    <section class="patient-panel card" data-patient-panel="medicines" hidden>
+      <h3>My medicines</h3>
+      <div id="patient-medicines" class="list"></div>
+    </section>
+
+    <section class="patient-panel card" data-patient-panel="requests" hidden>
+      <h3>My requests</h3>
+      <div class="grid two-column">
+        <div>
+        <h4>Appointment requests</h4>
+        <div id="patient-appointment-requests" class="list"></div>
+        </div>
+        <div>
+        <h4>Prescription requests</h4>
+        <div id="patient-prescription-requests" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="patient-panel card" data-patient-panel="notes" hidden>
+      <h3>Medical notes</h3>
+      <div id="patient-notes" class="list"></div>
+    </section>
+  </template>
+
+  <template id="admin-template">
+    <nav class="admin-tabs" aria-label="Administration sections">
+      <button type="button" class="admin-tab active" data-admin-section="patients">Patients</button>
+      <button type="button" class="admin-tab" data-admin-section="doctors">Doctor management</button>
+      <button type="button" class="admin-tab" data-admin-section="activity">Login activity</button>
+    </nav>
+    <section class="admin-panel" data-admin-panel="patients">
+      <h3>Patient management</h3>
+      <div id="patient-list-view">
+        <button id="add-patient" type="button">Add a new patient</button>
+        <label>Search patients
+          <input id="admin-patient-search" type="search" list="admin-patient-suggestions" placeholder="Type a patient's name">
+          <datalist id="admin-patient-suggestions"></datalist>
+        </label>
+        <div id="admin-patients" class="list"></div>
+      </div>
+      <form id="patient-form" class="stack patient-form" hidden>
+        <h4 id="patient-form-heading">Add a new patient</h4>
+        <input type="hidden" name="id">
+        <label>Name <input name="name" required maxlength="80"></label>
+        <label>Address <input name="address" required maxlength="160"></label>
+        <label>Telephone <input name="telephone" required pattern="[0-9]{7,20}"></label>
+        <label>Date of birth <input name="dateOfBirth" type="date" required></label>
+        <label>NHS number <input name="nhsNumber" required pattern="[0-9]{10}"></label>
+        <button type="submit">Save patient</button>
+      </form>
+      <p id="admin-message" class="message" aria-live="polite"></p>
+    </section>
+    <section class="admin-panel" data-admin-panel="doctors" hidden>
+      <h3>Doctor management</h3>
+      <div id="doctor-list-view">
+        <button id="add-doctor" type="button">Add a new doctor</button>
+        <label>Search doctors
+          <input id="admin-doctor-search" type="search" list="admin-doctor-suggestions" placeholder="Type a doctor's name">
+          <datalist id="admin-doctor-suggestions"></datalist>
+        </label>
+        <div id="admin-doctors" class="list"></div>
+      </div>
+      <form id="doctor-form" class="grid patient-form" hidden>
+        <h4 id="doctor-form-heading">Add a new doctor</h4>
+        <input type="hidden" name="id">
+        <label>Name <input name="name" required maxlength="80"></label>
+        <label>Email <input name="email" type="email" required maxlength="120"></label>
+        <label>Specialty <input name="specialty" required maxlength="80"></label>
+        <label>Password <input id="doctor-password" name="password" type="password" minlength="12"></label>
+        <label>Confirm password <input id="doctor-confirm-password" name="confirmPassword" type="password" minlength="12"></label>
+        <button id="doctor-show-password" type="button" class="secondary">Show password</button>
+        <button type="submit">Save doctor</button>
+      </form>
+      <p id="doctor-message" class="message" aria-live="polite"></p>
+    </section>
+    <section class="admin-panel" data-admin-panel="activity" hidden>
+      <h3>Login activity</h3>
+      <p class="muted">Recent sign-ins recorded in this browser.</p>
+      <div id="admin-login-activity" class="list"></div>
+    </section>
+  </template>
+
+  <template id="doctor-template">
+    <nav class="admin-tabs doctor-tabs" aria-label="Doctor sections">
+      <button type="button" class="admin-tab active" data-doctor-section="requests">My requests</button>
+      <button type="button" class="admin-tab" data-doctor-section="records">Patient records</button>
+    </nav>
+    <section class="doctor-panel card" data-doctor-panel="requests">
+      <h3>Requests for you</h3>
+      <div id="doctor-appointment-requests" class="list"></div>
+    </section>
+    <section class="doctor-panel card" data-doctor-panel="records" hidden>
+      <h3>Patient records</h3>
+      <p class="muted">Choose a patient before adding medical records. Entries are saved under your doctor account.</p>
+      <div class="grid two-column form-spacing">
+        <label>Patient <input id="doctor-patient" type="search" list="doctor-patient-options" placeholder="Search and choose a patient" autocomplete="off" required><datalist id="doctor-patient-options"></datalist><input id="doctor-patient-id" type="hidden"></label>
+      </div>
+      <p id="doctor-message" class="message" aria-live="polite"></p>
+      <div class="grid two-column">
+        <div>
+          <h3>Add clinical history / note</h3>
+          <form id="note-form" class="stack">
+            <label>Clinical note <textarea id="note-text" required maxlength="500"></textarea></label>
+            <button type="submit">Save medical note</button>
+          </form>
+        </div>
+        <div>
+          <h3>Add medicine / treatment</h3>
+          <form id="prescription-form" class="stack">
+            <label>Medicine <input id="medicine-options" type="search" list="doctor-medicine-options" placeholder="Search and choose a medicine" autocomplete="off" required><datalist id="doctor-medicine-options"></datalist><input id="medicine-id" type="hidden"></label>
+            <label>Treatment instructions <input id="medicine-instructions" required maxlength="200"></label>
+            <button type="submit">Save prescription</button>
+          </form>
+        </div>
+      </div>
+      <h3>Patient medical history</h3>
+      <div id="doctor-history" class="list"></div>
+      <h3>Medical notes</h3>
+      <div id="doctor-notes" class="list"></div>
+      <h3>Prescriptions and treatments</h3>
+      <div id="doctor-prescriptions" class="list"></div>
+    </section>
+  </template>
+
+  <script type="module" src="app.js?v=20261107-audit-cleanup"></script>
+</body>
+</html>

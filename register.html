@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- Patient-only self-registration form. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css?v=20261107-readable-text">
+  <title>Create account | MediCare</title>
+</head>
+<body class="public-page">
+  <main class="auth-layout">
+    <a class="brand-link" href="index.html">MediCare</a>
+    <section class="card auth-panel">
+      <p class="eyebrow">Patient registration</p>
+      <h1>Create your account</h1>
+      <p class="muted">Only patients can self-register. Staff accounts are created by the practice.</p>
+      <form id="register-form" class="stack">
+        <label>Full name <input name="name" maxlength="80" required></label>
+        <label>Email <input name="email" type="email" autocomplete="email" maxlength="120" required></label>
+        <label>Date of birth <input name="dateOfBirth" type="date" required></label>
+        <label>NHS number <input name="nhsNumber" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required></label>
+        <label>Address <input name="address" maxlength="160" required></label>
+        <label>Telephone <input name="telephone" pattern="[0-9]{7,20}" maxlength="20" required></label>
+        <label>Password <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}" title="Use at least 12 characters with upper- and lower-case letters, a number and a symbol." required></label>
+        <p class="muted">Use at least 12 characters with upper- and lower-case letters, a number and a symbol.</p>
+        <label>Confirm password <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required></label>
+        <button id="register-show-password" type="button" class="secondary">Show password</button>
+        <label class="checkbox-label"><input name="consent" type="checkbox" required> I consent to MediCare storing these details for care management.</label>
+        <button type="submit">Create account</button>
+      </form>
+      <p id="register-message" class="message" aria-live="polite"></p>
+      <p class="auth-switch">Already registered? <a href="login.html">Sign in</a></p>
+    </section>
+  </main>
+  <script type="module">
+    import { initialiseRegistration } from "./auth.js";
+    initialiseRegistration();
+  </script>
+</body>
+</html>
