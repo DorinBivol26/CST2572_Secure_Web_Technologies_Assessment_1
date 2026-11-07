@@ -8,12 +8,14 @@
   <title>Create account | MediCare</title>
 </head>
 <body class="public-page">
+  <!-- Only patients can create an account from this page. -->
   <main class="auth-layout">
     <a class="brand-link" href="index.html">MediCare</a>
     <section class="card auth-panel">
       <p class="eyebrow">Patient registration</p>
       <h1>Create your account</h1>
       <p class="muted">Only patients can self-register. Staff accounts are created by the practice.</p>
+      <!-- Registration validates and stores the new patient profile. -->
       <form id="register-form" class="stack">
         <label>Full name <input name="name" maxlength="80" required></label>
         <label>Email <input name="email" type="email" autocomplete="email" maxlength="120" required></label>

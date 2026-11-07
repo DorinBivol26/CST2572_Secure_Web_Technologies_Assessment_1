@@ -4,6 +4,7 @@ import { encryptStoredFields, decryptStoredFields, hashPassword } from "./crypto
 import { getPasswordValidationError, isValidDateOfBirth, isValidEmail, isValidNhsNumber, sanitise } from "./validate.js";
 
 export async function showAdmin() {
+  // Initialise the administration workspace after checking the role.
   requireRole("admin");
   const form = document.getElementById("patient-form");
   const list = document.getElementById("admin-patients");
@@ -36,6 +37,7 @@ export async function showAdmin() {
     doctorShowPassword.textContent = visible ? "Show password" : "Hide password";
   });
 
+  // Switch between patient, doctor, and activity panels.
   document.querySelectorAll(".admin-tab").forEach(button => {
     button.addEventListener("click", async () => {
       document.querySelectorAll(".admin-tab").forEach(item => item.classList.toggle("active", item === button));
@@ -58,10 +60,11 @@ export async function showAdmin() {
     });
   });
 
-  // Show the patients when the admin page opens.
+  // Show the initial lists when the admin page opens.
   await showPatients();
   await showDoctors();
 
+  // Save a doctor profile and its matching login account.
   doctorForm.addEventListener("submit", async event => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(doctorForm));
@@ -114,6 +117,7 @@ export async function showAdmin() {
     await showDoctors();
   });
 
+  // Validate and encrypt patient data before saving it.
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
@@ -161,6 +165,7 @@ export async function showAdmin() {
     await showPatients();
   });
 
+  // Open a clean form for a new patient.
   addPatient.addEventListener("click", function () {
     form.reset();
     patientFormHeading.textContent = "Add a new patient";
@@ -169,6 +174,7 @@ export async function showAdmin() {
     form.elements.name.focus();
     message.textContent = "";
   });
+  // Open a clean form for a new doctor.
   addDoctor.addEventListener("click", () => {
     doctorForm.reset();
     doctorFormHeading.textContent = "Add a new doctor";
@@ -182,6 +188,7 @@ export async function showAdmin() {
   doctorSearch.addEventListener("input", showDoctors);
 
   async function showPatients() {
+    // Render decrypted patient summaries and matching edit actions.
     const patients = await getAll("patients");
     list.replaceChildren();
 
@@ -262,6 +269,7 @@ export async function showAdmin() {
   }
 
   async function showDoctors() {
+    // Render searchable doctor accounts and their management actions.
     const doctors = await getAll("doctors");
     doctorList.replaceChildren();
     const query = doctorSearch.value.trim().toLowerCase();
@@ -314,6 +322,7 @@ export async function showAdmin() {
   }
 
   async function showLoginActivity() {
+    // Display successful sign-ins in newest-first order.
     const [logs, users] = await Promise.all([getAll("auditLogs"), getAll("users")]);
     const logins = logs.filter(log => log.action === "login")
       .sort((left, right) => right.createdAt.localeCompare(left.createdAt));

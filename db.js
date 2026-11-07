@@ -2,6 +2,7 @@ const DB_NAME = "carelocal";
 const DB_VERSION = 3;
 const STORES = ["patients", "doctors", "admins", "users", "medicines", "appointments", "notes", "prescriptions", "prescriptionRequests", "auditLogs"];
 
+// Open the shared local database and create any missing stores.
 // Small IndexedDB helpers keep database access consistent across roles.
 export function openDatabase() {
   return new Promise((resolve, reject) => {
@@ -18,6 +19,7 @@ export function openDatabase() {
 }
 
 export async function getAll(storeName) {
+  // Read every record from one role's data store.
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const request = db.transaction(storeName, "readonly").objectStore(storeName).getAll();
@@ -27,6 +29,7 @@ export async function getAll(storeName) {
 }
 
 export async function put(storeName, value) {
+  // Insert a new record or replace the record with the same id.
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const request = db.transaction(storeName, "readwrite").objectStore(storeName).put(value);
@@ -36,6 +39,7 @@ export async function put(storeName, value) {
 }
 
 export async function remove(storeName, id) {
+  // Delete one record by its object-store key.
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const request = db.transaction(storeName, "readwrite").objectStore(storeName).delete(id);
@@ -45,6 +49,7 @@ export async function remove(storeName, id) {
 }
 
 export async function importRecords(records) {
+  // Import related records in one transaction so the seed stays consistent.
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(Object.keys(records), "readwrite");
@@ -58,6 +63,7 @@ export async function importRecords(records) {
 }
 
 export async function clearStores(storeNames) {
+  // Remove stale reference data before loading the current bundled version.
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(storeNames, "readwrite");

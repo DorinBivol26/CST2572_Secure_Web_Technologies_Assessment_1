@@ -6,24 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#176b87">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="styles.css?v=20261107-patient-sections">
+  <link rel="stylesheet" href="styles.css?v=20261107-account-header">
   <title>MediCare</title>
 </head>
 <body>
+  <!-- The dashboard header stays visible while role content changes below. -->
   <header class="site-header">
     <div>
-      <p class="eyebrow">CST2572 assessment</p>
       <h1>MediCare</h1>
-      <p>Offline-ready patient records and appointment management.</p>
     </div>
-    <div class="header-actions">
+    <nav class="header-actions" aria-label="Account navigation">
       <a class="header-link" href="index.html">Home</a>
       <span id="signed-in-as" class="status"></span>
       <button id="logout-button" type="button" class="secondary">Log out</button>
-      <span id="connection-status" class="status">Checking connection...</span>
-    </div>
+    </nav>
   </header>
 
+  <!-- JavaScript fills the workspace with the signed-in user's role template. -->
   <main>
     <section id="workspace-card" class="card">
       <div class="section-heading">
@@ -37,6 +36,7 @@
     </section>
   </main>
 
+  <!-- Patient actions are grouped into separate tabs for easier scanning. -->
   <template id="patient-template">
     <nav class="admin-tabs patient-tabs" aria-label="Patient sections">
       <button type="button" class="admin-tab active" data-patient-section="personal">Personal information</button>
@@ -105,6 +105,7 @@
     </section>
   </template>
 
+  <!-- Administrators manage people and review local login activity. -->
   <template id="admin-template">
     <nav class="admin-tabs" aria-label="Administration sections">
       <button type="button" class="admin-tab active" data-admin-section="patients">Patients</button>
@@ -163,6 +164,7 @@
     </section>
   </template>
 
+  <!-- Doctors review requests and add patient clinical records. -->
   <template id="doctor-template">
     <nav class="admin-tabs doctor-tabs" aria-label="Doctor sections">
       <button type="button" class="admin-tab active" data-doctor-section="requests">My requests</button>
@@ -205,6 +207,6 @@
     </section>
   </template>
 
-  <script type="module" src="app.js?v=20261107-audit-cleanup"></script>
+  <script type="module" src="app.js?v=20261107-account-header"></script>
 </body>
 </html>

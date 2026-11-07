@@ -8,12 +8,14 @@
   <title>Sign in | MediCare</title>
 </head>
 <body class="public-page">
+  <!-- The sign-in form is shared by patients and staff accounts. -->
   <main class="auth-layout">
     <a class="brand-link" href="index.html">MediCare</a>
     <section class="card auth-panel">
       <p class="eyebrow">Secure access</p>
       <h1>Welcome back</h1>
       <p class="muted">Sign in to continue to your care workspace.</p>
+      <!-- Credentials are handled by the authentication module. -->
       <form id="login-form" class="stack">
         <label>Email or admin username <input name="email" type="text" autocomplete="username" maxlength="120" required></label>
         <label>Password <input name="password" type="password" autocomplete="current-password" required></label>

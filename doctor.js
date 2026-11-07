@@ -5,6 +5,7 @@ import { sanitise } from "./validate.js";
 import { escapeHtml, formatDateTime } from "./ui.js?v=20261107";
 
 export async function showDoctor() {
+  // Initialise the doctor workspace and load its searchable records.
   requireRole("doctor");
   const patientSelect = document.getElementById("doctor-patient");
   const medicineSelect = document.getElementById("medicine-options");
@@ -20,6 +21,7 @@ export async function showDoctor() {
   const medicines = await getAll("medicines");
   const doctorId = session.doctorId || doctors.find(doctor => doctor.name === session.name)?.id;
 
+  // Keep requests and clinical records in separate panels.
   document.querySelectorAll(".doctor-tabs .admin-tab").forEach(button => {
     button.addEventListener("click", () => {
       document.querySelectorAll(".doctor-tabs .admin-tab").forEach(item => item.classList.toggle("active", item === button));
@@ -36,6 +38,7 @@ export async function showDoctor() {
   patientSelect.addEventListener("input", showHistory);
   await showHistory();
 
+  // Save a clinical note for the selected patient.
   document.getElementById("note-form").addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!patientIdInput.value || !doctorId) {
@@ -58,6 +61,7 @@ export async function showDoctor() {
     await showHistory();
   });
 
+  // Save a treatment linked to the selected patient and medicine.
   document.getElementById("prescription-form").addEventListener("submit", async function (event) {
     event.preventDefault();
     if (!patientIdInput.value || !doctorId || !medicineIdInput.value) {
@@ -82,6 +86,7 @@ export async function showDoctor() {
   });
 
   function setupCombobox(input, listId, hiddenInput, records, getLabel) {
+    // Show friendly names while keeping database IDs in hidden fields.
     const list = document.getElementById(listId);
     list.replaceChildren(...records.map(record => {
       const option = document.createElement("option");
@@ -95,6 +100,7 @@ export async function showDoctor() {
   }
 
   async function showHistory() {
+    // Combine related appointments, notes, and treatments for one patient.
     const historyList = document.getElementById("doctor-history");
     const notesList = document.getElementById("doctor-notes");
     const prescriptionList = document.getElementById("doctor-prescriptions");
@@ -165,6 +171,7 @@ export async function showDoctor() {
   }
 
   async function showRequests() {
+    // Show only appointments assigned to the signed-in doctor.
     const requestList = document.getElementById("doctor-appointment-requests");
     const appointments = await getAll("appointments");
     const assigned = appointments.filter(appointment => appointment.doctorId === doctorId);

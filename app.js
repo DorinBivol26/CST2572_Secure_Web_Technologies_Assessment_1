@@ -11,12 +11,14 @@ const BUNDLED_DATA_VERSION = "2026-11-07-split-medicines";
 const $ = selector => document.querySelector(selector);
 const getCurrentPatientId = () => getSession()?.patientId || "p-001";
 
+// Load bundled reference records before rendering the current workspace.
 async function loadData() {
   const records = {};
   // Refresh only bundled reference data; keep local patient activity intact.
   const needsBundledImport = localStorage.getItem("medicare.bundledDataVersion") !== BUNDLED_DATA_VERSION;
   if (needsBundledImport) await clearStores(["doctors", "medicines"]);
 
+  // Keep existing patient activity while refreshing demo reference data.
   for (const store of Object.keys(BUNDLED_DATA)) {
     const existing = await getAll(store);
     if (store === "patients") {
@@ -27,11 +29,24 @@ async function loadData() {
           encryptStoredFields(patient, ["name", "address", "telephone", "dateOfBirth", "nhsNumber"])
         ));
       }
+      const bundledPatients = new Map(BUNDLED_DATA.patients.map(patient => [patient.id, patient]));
+      const repairedPatients = [];
+      for (const patient of existing) {
+        const bundledPatient = bundledPatients.get(patient.id);
+        if (!bundledPatient) continue;
+        const visiblePatient = await decryptStoredFields(patient, ["name", "address", "telephone", "dateOfBirth", "nhsNumber"]);
+        const encryptedFields = ["name", "address", "telephone", "dateOfBirth", "nhsNumber"];
+        if (encryptedFields.some(field => visiblePatient[field] === patient[field] && typeof patient[field] === "string" && patient[field].includes("."))) {
+          repairedPatients.push(await encryptStoredFields(bundledPatient, encryptedFields));
+        }
+      }
+      if (repairedPatients.length > 0) records[store] = [...(records[store] || []), ...repairedPatients];
     } else if (existing.length === 0 || (needsBundledImport && ["doctors", "medicines"].includes(store))) {
       records[store] = BUNDLED_DATA[store];
     }
   }
 
+  // Write all pending imports together after the migration checks finish.
   if (Object.keys(records).length > 0) {
     await importRecords(records);
   }
@@ -40,6 +55,7 @@ async function loadData() {
 }
 
 async function renderRole(role) {
+  // Clone only the template that belongs to the authenticated role.
   requireRole(role);
   // Each role gets its own template, so unrelated controls never appear.
   const template = document.getElementById(`${role}-template`);
@@ -61,6 +77,7 @@ async function renderRole(role) {
 }
 
 function setupPatientTabs() {
+  // Show one patient panel at a time when a tab is selected.
   document.querySelectorAll(".patient-tabs .admin-tab").forEach(button => {
     button.addEventListener("click", () => {
       document.querySelectorAll(".patient-tabs .admin-tab").forEach(item => {
@@ -74,6 +91,7 @@ function setupPatientTabs() {
 }
 
 async function showPatient() {
+  // Build the patient workspace from linked local records.
   const patientId = getCurrentPatientId();
   const [patients, doctors, medicines, appointments, notes, prescriptions, prescriptionRequests] = await Promise.all([
     getAll("patients"),
@@ -122,6 +140,7 @@ async function showPatient() {
   setupCombobox("patient-doctor", "patient-doctor-options", "#appointment-form input[name='doctorId']", doctors, item => item.name);
   setupCombobox("request-medicine", "request-medicine-options", "#prescription-request-form input[name='medicineId']", medicines, item => item.name);
 
+  // Limit every patient view to records owned by the signed-in patient.
   const patientAppointments = appointments.filter(item => item.patientId === patientId);
   // Summaries stay short while details remain available on demand.
   $("#patient-appointments").innerHTML = patientAppointments.map(item => {
@@ -203,30 +222,24 @@ async function showPatient() {
 }
 
 async function updateCount() {
+  // Give staff a quick summary of the records currently stored locally.
   const stores = ["patients", "doctors", "medicines", "appointments", "notes", "prescriptions", "prescriptionRequests"];
   const counts = await Promise.all(stores.map(store => getAll(store).then(items => items.length)));
   $("#record-count").textContent = `${counts.reduce((sum, count) => sum + count, 0)} local records`;
 }
 
-function updateConnection() {
-  const status = $("#connection-status");
-  status.textContent = navigator.onLine ? "Online" : "Offline";
-  status.classList.toggle("offline", !navigator.onLine);
-}
-
-window.addEventListener("online", updateConnection);
-window.addEventListener("offline", updateConnection);
-updateConnection();
-
 if ("serviceWorker" in navigator) {
+  // Register the offline worker for the application shell.
   // The versioned URL makes browsers check for a new offline cache.
-  navigator.serviceWorker.register("./sw.js?v=20261107-v40").catch(error => console.error(error));
+  navigator.serviceWorker.register("./sw.js?v=20261107-v42").catch(error => console.error(error));
 }
 
 const session = getSession();
 if (!session) {
+  // Unauthenticated visitors must use the sign-in page first.
   window.location.href = "login.html";
 } else {
+  // Populate shared header details and start the role-specific app.
   document.querySelector(".site-header").hidden = false;
   document.querySelector("main").hidden = false;
   document.getElementById("signed-in-as").textContent = session.role === "admin"

@@ -6,11 +6,11 @@ Dependency-free client-side PWA for CST2572 Assessment 1.
 
 ## Run
 
-Service workers require an HTTP origin. From the project directory run `npx serve .` or use any static web server, then open the supplied local URL in Google Chrome. Do not open `index.html` directly with `file://`.
+Service workers require an HTTP origin. From the project directory run `python -m http.server 8000` or use any static web server, then open `http://localhost:8000` in a browser. Do not open `index.html` directly with `file://`.
 
 Open `index.html` for the public MediCare landing page. Patients can use `register.html` to create an account, then use `login.html` to sign in. The authenticated application is in `dashboard.html`; users who are not signed in are redirected to the login page.
 
-On first authenticated load the app imports the supplied patient, medicine and administrator data from `seed-data.js` into IndexedDB automatically. Patients do not need to press an import button. The manual import control is available only to administrators. The data is bundled with the app, so the JSON source files are not needed at runtime and the app remains usable offline.
+On the first authenticated load, the app imports the supplied patient, doctor, medicine and administrator data from `seed-data.js` into IndexedDB automatically. There is no manual import control. The bundled data is loaded by the application at runtime, and the service worker caches the app shell for offline use.
 
 Doctor and medicine selectors include text search with browser suggestions. Comma-separated medicine source values are split into individual options before import. Administrators can search patients and doctors by name, then edit or delete matching records.
 
@@ -22,7 +22,7 @@ The patient workspace uses the same tabbed navigation style as the admin workspa
 
 Privacy consent is collected during patient registration rather than on every sign-in. The sign-in page only asks for account credentials and displays the privacy notice for reference.
 
-After an appointment or prescription request is saved, the patient sees an immediate confirmation message and is directed to the **My requests** tab to track its status.
+After an appointment or prescription request is saved, the patient sees an immediate confirmation message and can open the **My requests** tab to track its status.
 
 Patient and doctor records use searchable selections: type into the single patient, doctor or medicine field and choose a matching suggestion. Separate search boxes are not required.
 
@@ -34,7 +34,7 @@ Appointments, clinical notes, treatments and request records use expandable deta
 
 ## Data and offline design
 
-IndexedDB database `carelocal` contains `patients`, `doctors`, `admins`, `medicines`, `appointments`, `notes`, `prescriptions`, and `prescriptionRequests` object stores. The service worker caches the MediCare app shell and runtime assets. The ER diagram is in [ER-DIAGRAM.md](./ER-DIAGRAM.md).
+IndexedDB database `carelocal` contains `patients`, `doctors`, `admins`, `users`, `medicines`, `appointments`, `notes`, `prescriptions`, `prescriptionRequests`, and `auditLogs` object stores. The service worker caches the MediCare app shell and runtime assets. The ER diagram is in [ER-DIAGRAM.md](./ER-DIAGRAM.md).
 
 ## Team contributions
 
@@ -47,12 +47,13 @@ IndexedDB database `carelocal` contains `patients`, `doctors`, `admins`, `medici
 
 Self-registration is limited to patients. Doctors and administrators must be provisioned by the practice. New patient passwords are salted and hashed, and the patient profile fields are encrypted before they are stored in IndexedDB.
 
-## Member 3 patient walkthrough
+## Patient walkthrough
 
 1. Start a local HTTP server from the project directory, for example `python -m http.server 8000`.
 2. Open `http://localhost:8000` in Google Chrome.
-3. Use the Patient workspace to review the demo profile, choose a doctor, book a future appointment and request a prescription.
-4. The patient view filters appointments, notes and prescriptions by the current patient ID.
+3. Sign in with the demo patient account (`patient@example.test` / `Patient!2026Secure`).
+4. Use the Patient workspace to review the demo profile, choose a doctor, book a future appointment and request a prescription.
+5. Open **My requests** to review appointment and prescription request statuses.
 
 ## Security lead notes
 

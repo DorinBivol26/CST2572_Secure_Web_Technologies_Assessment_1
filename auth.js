@@ -21,6 +21,7 @@ const ADMIN_USERS = BUNDLED_DATA.admins.map(admin => ({
 
 let timeoutId;
 
+// Add bundled demo accounts without replacing accounts already created locally.
 async function ensureUsers() {
   const users = await getAll("users");
   const knownIds = new Set(users.map(user => user.id));
@@ -34,6 +35,7 @@ async function ensureUsers() {
 }
 
 export async function login(identifier, password) {
+  // Resolve either an email address or an administrator username.
   const normalizedIdentifier = identifier.trim().toLowerCase();
   if (!normalizedIdentifier) throw new Error("Enter your email or admin username.");
   await ensureUsers();
@@ -41,6 +43,7 @@ export async function login(identifier, password) {
     item.email === normalizedIdentifier || item.username?.toLowerCase() === normalizedIdentifier
   );
   if (!user || !(await verifyPassword(password, user.password))) throw new Error("Username, email or password is incorrect.");
+  // Store only the identity and role needed by the dashboard.
   const session = {
     id: user.id,
     name: user.name,
@@ -59,6 +62,7 @@ export async function login(identifier, password) {
 }
 
 export function getSession() {
+  // Expired or malformed browser sessions are treated as signed out.
   try {
     const session = JSON.parse(sessionStorage.getItem(SESSION_KEY));
     return session && Date.now() - session.lastActivity < TIMEOUT_MS ? session : null;
@@ -68,18 +72,21 @@ export function getSession() {
 }
 
 export function logout() {
+  // Remove both identity and temporary encryption material.
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem("medicare.encryptionKey");
   clearTimeout(timeoutId);
 }
 
 export function requireRole(role) {
+  // Guard each workspace before it reads or changes role-specific records.
   const session = getSession();
   if (!session || session.role !== role) throw new Error(`This workspace requires the ${role} role.`);
   return session;
 }
 
 export async function audit(action, store, recordId) {
+  // Record successful access and changes in the local audit store.
   const session = getSession();
   if (!session) return;
   await put("auditLogs", {
@@ -117,6 +124,7 @@ function startInactivityTimeout() {
 }
 
 export function initialiseAuth(onAuthenticated) {
+  // Connect the sign-in form to the shared login workflow.
   const form = document.getElementById("login-form");
   const message = document.getElementById("login-message");
   const privacy = document.getElementById("privacy-notice");
@@ -137,6 +145,7 @@ export function initialiseAuth(onAuthenticated) {
 }
 
 export function initialiseRegistration() {
+  // Connect the patient registration form to validation and storage.
   const form = document.getElementById("register-form");
   const message = document.getElementById("register-message");
   const password = document.getElementById("register-password");

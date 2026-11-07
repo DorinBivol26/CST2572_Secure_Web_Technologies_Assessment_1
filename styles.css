@@ -1,4 +1,5 @@
 :root { color-scheme: light; font-family: system-ui, sans-serif; color: #18323d; background: #eef5f6; }
+/* Shared layout and typography keep every page visually consistent. */
 /* Shared layout rules keep the public and authenticated pages consistent. */
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -7,6 +8,7 @@ body { margin: 0; }
 .header-link { color: white; font-weight: 700; }
 main { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
 .card { background: white; border: 1px solid #d6e4e7; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px #153b4512; }
+/* The landing hero introduces the service before sign-in. */
 .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr); gap: 2rem; align-items: center; padding: 2.5rem; background: linear-gradient(135deg, #e8f6f5, #d6edf0); color: #18323d; }
 .hero h2 { max-width: 620px; font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: .8rem; }
 .hero-copy { max-width: 620px; line-height: 1.6; }
@@ -26,6 +28,7 @@ button { border: 0; border-radius: 7px; padding: .65rem 1rem; color: white; back
 button:hover { background: #0e5268; }
 button.secondary, .role-tab { color: #176b87; background: #e2f0f2; }
 .role-tab.active { color: white; background: #176b87; }
+/* Role tabs separate large workspaces into focused sections. */
 .admin-tabs { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1rem 0 1.5rem; border-bottom: 1px solid #d6e4e7; padding-bottom: .75rem; }
 .admin-tab.active { color: white; background: #176b87; }
 .grid { display: grid; gap: 1rem; }
@@ -35,6 +38,7 @@ button.secondary, .role-tab { color: #176b87; background: #e2f0f2; }
 label { display: grid; gap: .3rem; font-weight: 600; }
 input, textarea, select { width: 100%; padding: .6rem; border: 1px solid #a9c3c8; border-radius: 6px; font: inherit; }
 textarea { min-height: 100px; resize: vertical; }
+/* Lists use a shared card style for patients, requests, and records. */
 .list { display: grid; gap: .6rem; }
 .list-item { padding: .8rem; border: 1px solid #d6e4e7; border-radius: 7px; background: #f8fbfb; }
 .list-item p { margin: .2rem 0; }

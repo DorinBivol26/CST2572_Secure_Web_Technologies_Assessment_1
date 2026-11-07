@@ -2,6 +2,7 @@ const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 const DATA_KEY_STORAGE = "medicare.dataKey";
 
+// Convert binary encryption values to strings that IndexedDB can store.
 function toBase64(bytes) {
   return btoa(String.fromCharCode(...new Uint8Array(bytes)));
 }
@@ -10,6 +11,7 @@ function fromBase64(value) {
   return Uint8Array.from(atob(value), character => character.charCodeAt(0));
 }
 
+// Derive a repeatable password hash while keeping a unique salt per account.
 export async function hashPassword(password, salt = crypto.getRandomValues(new Uint8Array(16))) {
   // PBKDF2 makes password guessing deliberately expensive.
   const keyMaterial = await crypto.subtle.importKey("raw", textEncoder.encode(password), "PBKDF2", false, ["deriveBits"]);
@@ -22,6 +24,7 @@ export async function verifyPassword(password, storedHash) {
   return result.hash === storedHash.hash;
 }
 
+// Create the temporary session key used for account-specific encryption.
 export async function deriveEncryptionKey(password, salt) {
   const keyMaterial = await crypto.subtle.importKey("raw", textEncoder.encode(password), "PBKDF2", false, ["deriveBits"]);
   return crypto.subtle.deriveBits({
@@ -39,6 +42,7 @@ async function getSessionKey() {
   return crypto.subtle.importKey("raw", fromBase64(encodedKey), { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 }
 
+// Get the browser-local key used to protect shared patient records.
 async function getDataKey() {
   let encodedKey = localStorage.getItem(DATA_KEY_STORAGE);
   if (!encodedKey) {
@@ -57,6 +61,7 @@ export async function encryptValue(value) {
   return `${toBase64(iv)}.${toBase64(encrypted)}`;
 }
 
+// Return the original value when it is not encrypted or cannot be opened.
 export async function decryptValue(value) {
   if (typeof value !== "string" || !value.includes(".")) return value;
   try {
@@ -81,6 +86,7 @@ export async function decryptFields(record, fields) {
   return decrypted;
 }
 
+// Encrypt selected fields while preserving the rest of the record unchanged.
 export async function encryptStoredFields(record, fields) {
   const key = await getDataKey();
   const encrypted = { ...record };
