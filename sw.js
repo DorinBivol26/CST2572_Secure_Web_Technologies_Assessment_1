@@ -1,4 +1,4 @@
-const CACHE_NAME = "medicare-v42-ui-helpers";
+const CACHE_NAME = "medicare-v4-ui-helpers";
 const APP_SHELL = ["./", "./index.html", "./login.html", "./register.html", "./dashboard.html", "./styles.css", "./app.js", "./seed-data.js", "./db.js", "./admin.js", "./doctor.js", "./auth.js", "./crypto.js", "./validate.js", "./ui.js", "./manifest.json"];
 
 // Cache the application shell so the main workflow also works offline.
