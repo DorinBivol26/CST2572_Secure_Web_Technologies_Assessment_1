@@ -1,0 +1,35 @@
+<!doctype html>
+<!-- Staff and patient sign-in entry point. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css?v=20261107-readable-text">
+  <title>Sign in | MediCare</title>
+</head>
+<body class="public-page">
+  <!-- The sign-in form is shared by patients and staff accounts. -->
+  <main class="auth-layout">
+    <a class="brand-link" href="index.html">MediCare</a>
+    <section class="card auth-panel">
+      <p class="eyebrow">Secure access</p>
+      <h1>Welcome back</h1>
+      <p class="muted">Sign in to continue to your care workspace.</p>
+      <!-- Credentials are handled by the authentication module. -->
+      <form id="login-form" class="stack">
+        <label>Email or admin username <input name="email" type="text" autocomplete="username" maxlength="120" required></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+        <p class="muted">Use the email or admin username and password registered for your account.</p>
+        <p id="privacy-notice" class="muted"></p>
+        <button type="submit">Sign in</button>
+      </form>
+      <p id="login-message" class="message" aria-live="polite"></p>
+      <p class="auth-switch">New to MediCare? <a href="register.html">Create a patient account</a></p>
+    </section>
+  </main>
+  <script type="module">
+    import { initialiseAuth } from "./auth.js?v=20261107-sign-in";
+    initialiseAuth(() => window.location.href = "dashboard.html");
+  </script>
+</body>
+</html>
