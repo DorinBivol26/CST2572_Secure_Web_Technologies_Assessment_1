@@ -127,7 +127,11 @@ export function initialiseAuth(onAuthenticated) {
   // Connect the sign-in form to the shared login workflow.
   const form = document.getElementById("login-form");
   const message = document.getElementById("login-message");
-  const privacy = document.getElementById("privacy-notice");
+  const password = form.querySelector("input[name='password']");
+  const showPassword = document.getElementById("login-show-password");
+  showPassword.addEventListener("change", () => {
+    password.type = showPassword.checked ? "text" : "password";
+  });
   const session = getSession();
   if (session) onAuthenticated(session);
   form.addEventListener("submit", async event => {
@@ -141,7 +145,6 @@ export function initialiseAuth(onAuthenticated) {
       message.textContent = error.message;
     }
   });
-  privacy.textContent = "MediCare stores only the data needed for care management. Records stay in this browser and are protected during this session.";
 }
 
 export function initialiseRegistration() {
@@ -151,11 +154,16 @@ export function initialiseRegistration() {
   const password = document.getElementById("register-password");
   const confirmPassword = document.getElementById("register-confirm-password");
   const showPassword = document.getElementById("register-show-password");
-  showPassword.addEventListener("click", () => {
-    const visible = password.type === "text";
-    password.type = visible ? "password" : "text";
-    confirmPassword.type = visible ? "password" : "text";
-    showPassword.textContent = visible ? "Show password" : "Hide password";
+  const passwordRequirements = document.getElementById("password-requirements");
+  const showPasswordRequirements = () => {
+    passwordRequirements.hidden = false;
+  };
+  password.addEventListener("focus", showPasswordRequirements);
+  password.addEventListener("input", showPasswordRequirements);
+  showPassword.addEventListener("change", () => {
+    const type = showPassword.checked ? "text" : "password";
+    password.type = type;
+    confirmPassword.type = type;
   });
   form.addEventListener("submit", async event => {
     event.preventDefault();

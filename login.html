@@ -17,10 +17,9 @@
       <p class="muted">Sign in to continue to your care workspace.</p>
       <!-- Credentials are handled by the authentication module. -->
       <form id="login-form" class="stack">
-        <label>Email or admin username <input name="email" type="text" autocomplete="username" maxlength="120" required></label>
+        <label>Email or username <input name="email" type="text" autocomplete="username" maxlength="120" required></label>
         <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
-        <p class="muted">Use the email or admin username and password registered for your account.</p>
-        <p id="privacy-notice" class="muted"></p>
+        <label class="checkbox-label"><input id="login-show-password" type="checkbox"> Show password</label>
         <button type="submit">Sign in</button>
       </form>
       <p id="login-message" class="message" aria-live="polite"></p>
@@ -28,7 +27,7 @@
     </section>
   </main>
   <script type="module">
-    import { initialiseAuth } from "./auth.js?v=20261107-sign-in";
+    import { initialiseAuth } from "./auth.js?v=20261108-password-toggle";
     initialiseAuth(() => window.location.href = "dashboard.html");
   </script>
 </body>

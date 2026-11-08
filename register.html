@@ -24,9 +24,9 @@
         <label>Address <input name="address" maxlength="160" required></label>
         <label>Telephone <input name="telephone" pattern="[0-9]{7,20}" maxlength="20" required></label>
         <label>Password <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{12,}" title="Use at least 12 characters with upper- and lower-case letters, a number and a symbol." required></label>
-        <p class="muted">Use at least 12 characters with upper- and lower-case letters, a number and a symbol.</p>
+        <p id="password-requirements" class="muted" hidden>Password must be at least 12 characters long and include an uppercase letter, a lowercase letter, a number and a symbol.</p>
         <label>Confirm password <input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required></label>
-        <button id="register-show-password" type="button" class="secondary">Show password</button>
+        <label class="checkbox-label"><input id="register-show-password" type="checkbox"> Show password</label>
         <label class="checkbox-label"><input name="consent" type="checkbox" required> I consent to MediCare storing these details for care management.</label>
         <button type="submit">Create account</button>
       </form>

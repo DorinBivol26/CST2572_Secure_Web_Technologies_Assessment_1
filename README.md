@@ -20,7 +20,7 @@ The admin workspace is divided into Patient management, Doctor management and Lo
 
 The patient workspace uses the same tabbed navigation style as the admin workspace. Patient tabs separate personal information, care requests, appointments, medicines, request history and medical notes, so only the selected panel is displayed at a time.
 
-Privacy consent is collected during patient registration rather than on every sign-in. The sign-in page only asks for account credentials and displays the privacy notice for reference.
+Privacy consent is collected during patient registration rather than on every sign-in. The sign-in page asks for account credentials and includes an optional show-password checkbox. The privacy notice is displayed in the authenticated dashboard.
 
 After an appointment or prescription request is saved, the patient sees an immediate confirmation message and can open the **My requests** tab to track its status.
 
@@ -38,10 +38,36 @@ IndexedDB database `carelocal` contains `patients`, `doctors`, `admins`, `users`
 
 ## Team contributions
 
-- Member 1: IndexedDB, JSON import, PWA and integration.
-- Member 3: front page, shared layout, patient dashboard, appointments and prescription requests.
-- Member 4: admin and doctor workspaces.
-- Member 2: authentication, validation, encryption, consent and audit logging.
+The following module ownership identifies which team member wrote each part of the
+application. Replace the member labels with the contributors' names before submission
+if names are required by the assessment.
+
+- **Member 1** — database, seed data, PWA and integration:
+  `db.js`, `seed-data.js`, `sw.js`, `manifest.json`, `app.js`, `ER-DIAGRAM.md`
+- **Member 2** — authentication, validation, encryption, consent and audit logging:
+  `auth.js`, `validate.js`, `crypto.js`
+- **Member 3** — public pages, shared interface, patient workspace, appointments and prescription requests:
+  `index.html`, `login.html`, `register.html`, `dashboard.html`, `ui.js`
+- **Member 4** — administration and doctor workspaces:
+  `admin.js`, `doctor.js`
+- **Shared presentation work** — application styling and planning wireframes:
+  `styles.css`, `wireframes.html`
+
+## Test accounts
+
+The application seeds the following demo accounts when it is first opened. Use the
+same sign-in page for patients, doctors and administrators. These are local
+development accounts only and must not be used in production.
+
+| Role | Email or username | Password |
+|---|---|---|
+| Patient | `patient@example.test` | `Patient!2026Secure` |
+| Doctor | `doctor@example.test` | `Doctor!2026Secure` |
+| Administrator | `admin@example.test` | `Admin!2026Secure` |
+
+The bundled administrator records in `seed-data.js` also provide administrator
+usernames. Their usernames are accepted on the sign-in page, and their passwords
+are the values supplied in the bundled source records.
 
 ## Patient registration
 
@@ -60,3 +86,11 @@ Self-registration is limited to patients. Doctors and administrators must be pro
 Demo passwords are `Patient!2026Secure`, `Doctor!2026Secure` and `Admin!2026Secure`. Passwords are salted and hashed with PBKDF2; sensitive patient fields are encrypted with AES-256-GCM before storage. A random local AES-256 data key is generated once and retained in local storage so authorised patient, doctor and administrator workspaces can decrypt the shared patient records. This is not equivalent to server-side key management: a user who controls the browser can inspect local storage and alter client-side code. A production system must move authentication, authorization, key storage and audit logs to a trusted server.
 
 The app collects only the patient details needed for appointments and care records. Registration records consent, while changes and access are recorded in the local audit log.
+
+## References
+
+- MDN Web Docs, **IndexedDB API**: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+- MDN Web Docs, **Service Worker API**: https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API
+- MDN Web Docs, **Web Crypto API**: https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API
+- MDN Web Docs, **SubtleCrypto.deriveBits()**: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveBits
+- MDN Web Docs, **SubtleCrypto.encrypt()**: https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt
